@@ -7,9 +7,16 @@ export default defineConfig([
     globalIgnores(["**/node_modules/*", "node/*", "playwright-report/*", "test-results/*", "coverage/*", "**/dist/*", "packages/kestra-sdk/src/openapi/*"]),
     ...pluginVue.configs["flat/base"],
     // `<style>` blocks are stylelint's half of this; here it is the tokens written in JavaScript.
-    // Same extensions the rest of this config covers: `.tsx` is not linted at all in this repo.
+    // `.jsx`/`.tsx` carry no other rule in this repo, so they get the parser they need and this rule
+    // alone — three Storybook stories were reaching for an undeclared token where nothing looked.
     {
         files: ["**/*.{js,mjs,cjs,ts,vue}"],
+        plugins: {"kestra-tokens": kestraTokens},
+        rules: {"kestra-tokens/no-undeclared-ks-token": "error"},
+    },
+    {
+        files: ["**/*.{jsx,tsx}"],
+        languageOptions: {parser: tsParser, parserOptions: {ecmaFeatures: {jsx: true}}},
         plugins: {"kestra-tokens": kestraTokens},
         rules: {"kestra-tokens/no-undeclared-ks-token": "error"},
     },
