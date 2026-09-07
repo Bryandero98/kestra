@@ -1,10 +1,18 @@
 import pluginVue from "eslint-plugin-vue"
 import tsParser from "@typescript-eslint/parser"
 import {defineConfig, globalIgnores} from "eslint/config"
+import kestraTokens from "./scripts/tokens/eslintPlugin.mjs"
 
 export default defineConfig([
     globalIgnores(["**/node_modules/*", "node/*", "playwright-report/*", "test-results/*", "coverage/*", "**/dist/*", "packages/kestra-sdk/src/openapi/*"]),
     ...pluginVue.configs["flat/base"],
+    // `<style>` blocks are stylelint's half of this; here it is the tokens written in JavaScript.
+    // Same extensions the rest of this config covers: `.tsx` is not linted at all in this repo.
+    {
+        files: ["**/*.{js,mjs,cjs,ts,vue}"],
+        plugins: {"kestra-tokens": kestraTokens},
+        rules: {"kestra-tokens/no-undeclared-ks-token": "error"},
+    },
     // Formatting rules for JS/TS files (not .vue — handled below by vue/* variants)
     {
         files: ["**/*.{js,mjs,cjs,ts}"],
